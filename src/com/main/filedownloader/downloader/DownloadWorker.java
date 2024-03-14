@@ -9,6 +9,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -22,15 +23,18 @@ class WorkerAssistant implements Runnable{
     private byte[] buffer;
     private ProgressEventDispatcher progressEventDispatcher;
     private Task task;
+    private File partFile;
     private volatile boolean isPaused = false, isCancel = false;
+    private static final int BUFFER_SIZE = 1024;
 
 
-    public WorkerAssistant(int start, int end, int partIndex, Task task, ProgressEventDispatcher progressEventDispatcher) {
+    public WorkerAssistant(int start, int end, int partIndex, Task task, ProgressEventDispatcher progressEventDispatcher) throws IOException {
         this.start = start;
         this.end = end;
         this.partIndex = partIndex;
         this.progressEventDispatcher = progressEventDispatcher;
         this.task = task;
+        this.partFile = createTempFile(task.getFileName(), partIndex);
     }
 
     @Override
@@ -41,13 +45,28 @@ class WorkerAssistant implements Runnable{
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Range", "bytes=" + start + "-" + (end - 1));
             double progress = 0;
+            /*
+            *
+                try (BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
+                     FileOutputStream fos = new FileOutputStream(partFile)) {
+                    byte[] buffer = new byte[BUFFER_SIZE];
+                    int bytesRead;
+                    int totalBytesRead = 0;
+                    while ((bytesRead = bis.read(buffer)) != -1) {
+                        fos.write(buffer, 0, bytesRead);
+                        totalBytesRead += bytesRead;
+                        double progress = ((double) totalBytesRead / (end - start)) * 100;
+                        System.out.printf("Worker %d: Downloaded %.2f%%\n", partIndex, progress);
+                    }
+                }
+            * */
             try (BufferedInputStream bis = new BufferedInputStream(conn.getInputStream())) {
-                buffer = new byte[end - start];
-                int offset = 0;
+                FileOutputStream fos = new FileOutputStream(partFile);
+                buffer = new byte[BUFFER_SIZE];
                 int bytesRead;
                 int totalBytesRead = 0;
-                while (offset < buffer.length && (bytesRead = bis.read(buffer, offset, buffer.length - offset)) != -1 && !isCancel) {
-                    offset += bytesRead;
+                while ((bytesRead = bis.read(buffer)) != -1 && !isCancel) {
+                    fos.write(buffer, 0, bytesRead);
                     totalBytesRead += bytesRead;
                     progress = ((double) totalBytesRead / (end - start)) * 100;
                     progressEventDispatcher.emitProgress(new ProgressEvent(task, (float) progress, false, "Assistant: "+partIndex));
@@ -60,6 +79,8 @@ class WorkerAssistant implements Runnable{
                         Thread.onSpinWait();
                     }
                 }
+                bis.close();
+                fos.close();
                 if(isCancel){
                     progressEventDispatcher.emitProgress(new ProgressEvent(task, (float) progress, true, "download canceled"));
                     buffer = new byte[]{}; // empty the buffer
@@ -71,6 +92,12 @@ class WorkerAssistant implements Runnable{
             e.printStackTrace();
             buffer = new byte[]{};
         }
+    }
+    private File createTempFile(String filename, int partIndex) throws IOException {
+        return File.createTempFile(filename+"_part_" + partIndex + "_", ".tmp", new File(task.getOutputLocation()));
+    }
+    public File getPartFile() {
+        return partFile;
     }
 
     public void copyPartToFile(FileOutputStream fos) throws IOException {
@@ -90,6 +117,7 @@ public class DownloadWorker implements Runnable{
     Task task;
     volatile boolean isPaused, isCancel = false;
     List<WorkerAssistant> assistants = new ArrayList<>();
+    private static final int BUFFER_SIZE = 1024;
 
     ProgressEventDispatcher progressEventDispatcher;
     public DownloadWorker(Task task, ProgressEventDispatcher progressEventDispatcher, boolean isPaused){
@@ -176,11 +204,25 @@ public class DownloadWorker implements Runnable{
     }
     private void joinParts(String outputFile, List<WorkerAssistant> assistants) throws IOException {
         System.out.println("Joining parts: "+task.getId());
+
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             for (WorkerAssistant assistant : assistants) {
-                assistant.copyPartToFile(fos);
+                File partFile = assistant.getPartFile();
+                try (FileInputStream fis = new FileInputStream(partFile)) {
+                    byte[] buffer = new byte[BUFFER_SIZE];
+                    int bytesRead;
+                    while ((bytesRead = fis.read(buffer)) != -1) {
+                        fos.write(buffer, 0, bytesRead);
+                    }
+                }
+                Files.delete(partFile.toPath());
             }
         }
+//        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+//            for (WorkerAssistant assistant : assistants) {
+//                assistant.copyPartToFile(fos);
+//            }
+//        }
         System.out.println("Joining parts finished: "+task.getId());
     }
     public void pause(){
