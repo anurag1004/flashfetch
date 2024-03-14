@@ -8,8 +8,8 @@ public class DownloadManager {
     public DownloadManager() {
         downloadQueueManager = new DownloadQueueManager();
     }
-    public Task addToDownloadQueue(String url, String outputLocation){
-        Task task = new Task(url, outputLocation);
+    public Task addToDownloadQueue(String url, String outputLocation, String filename){
+        Task task = new Task(url, outputLocation, filename);
         downloadQueueManager.addTask(task);
         return task;
     }

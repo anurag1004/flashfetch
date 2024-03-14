@@ -43,12 +43,18 @@ public class DownloadMasterWorker implements Runnable{
         }
     }
     public void pauseWorkerWithTaskId(int taskId){
-        workersMap.get(taskId).pause();
+        if(workersMap.containsKey(taskId)) {
+            workersMap.get(taskId).pause();
+        }
     }
     public void resumeWorkerWithTaskId(int taskId){
-        workersMap.get(taskId).resume();
+        if(workersMap.containsKey(taskId)) {
+            workersMap.get(taskId).resume();
+        }
     }
     public void cancelWorkerWithTaskId(int taskId){
-        workersMap.get(taskId).cancel();
+        if(workersMap.containsKey(taskId)) {
+            workersMap.get(taskId).cancel();
+        }
     }
 }

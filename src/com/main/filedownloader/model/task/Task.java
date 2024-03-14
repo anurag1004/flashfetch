@@ -5,11 +5,21 @@ public class Task {
     private final int taskId;
     private final String url;
     private final String outputLocation;
+    private final String fileName;
     private float sizeInKbs;
-    public Task(String url, String outputLoc){
+    public Task(String url, String outputLoc, String fileName){
         taskId = ++Task.id;
         this.url = url;
         this.outputLocation = outputLoc;
+        this.fileName = fileName;
+    }
+
+    public int getTaskId() {
+        return taskId;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public int getId() {
