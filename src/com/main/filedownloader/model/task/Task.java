@@ -2,7 +2,7 @@ package com.main.filedownloader.model.task;
 
 public class Task {
     private static int id = 0;
-    private final int taskId;
+    private int taskId;
     private final String url;
     private final String outputLocation;
     private final String fileName;
@@ -12,6 +12,10 @@ public class Task {
         this.url = url;
         this.outputLocation = outputLoc;
         this.fileName = fileName;
+    }
+
+    public void setTaskId(int taskId) {
+        this.taskId = taskId;
     }
 
     public int getTaskId() {

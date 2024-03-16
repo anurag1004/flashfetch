@@ -13,10 +13,14 @@ public class ProgressFetcher implements Runnable{
         while(true){
             try {
                 ProgressEvent progressEvent = progressEvents.take();
+                if(progressEvent.getTask().getId()==-1){
+                    break;
+                }
                 System.out.println(progressEvent.getTask().getId()+"|"+progressEvent.getProgress()+"|"+progressEvent.isFinished()+"|"+progressEvent.getMessage());
             }catch (Exception e){
                 Thread.currentThread().interrupt();
             }
         }
+        System.out.println("Progress fetcher shutting down...");
     }
 }

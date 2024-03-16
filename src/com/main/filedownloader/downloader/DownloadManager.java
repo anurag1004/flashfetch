@@ -22,4 +22,7 @@ public class DownloadManager {
     public void cancelDownload(int taskId){
         downloadQueueManager.cancelTask(taskId);
     }
+    public void exit(){
+        downloadQueueManager.cancelAllTasks();
+    }
 }

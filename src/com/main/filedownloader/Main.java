@@ -11,8 +11,11 @@ public class Main {
         String url2 = "https://github.com/anurag1004/downtube-desktop-app/releases/download/downtube_v1.0.1_windows/ytd_V1.0.1.msi";
         String outputLocation = "/Users/anuragverma/IdeaProjects/flashfetch/downloads";
         Task t1 = downloadManager.addToDownloadQueue(url1, outputLocation, "lightroom.dmg");
-//        Task t2 = downloadManager.addToDownloadQueue(url1, outputLocation);
-//        Thread.sleep(4000);
+        Task t2 = downloadManager.addToDownloadQueue(url2, outputLocation,"ytd1.msi");
+        Thread.sleep(20000);
+        Task t3 = downloadManager.addToDownloadQueue(url2, outputLocation,"ytd2.msi");
+//        Thread.sleep(8000);
+//        downloadManager.exit();
 //        downloadManager.pauseDownload(t1.getId());
 //        Thread.sleep(4000);
 //        downloadManager.resumeDownload(t1.getId());

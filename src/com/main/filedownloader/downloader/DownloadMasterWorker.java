@@ -29,9 +29,15 @@ public class DownloadMasterWorker implements Runnable{
     @Override
     public void run() {
         System.out.println("task queue manager started");
+        Task exitTask = null;
         while(true){
             try {
                 Task task = taskQueue.take();
+                if(task.getId()==-1){
+                    // terminate
+                    exitTask = task;
+                    break;
+                }
                 System.out.println("Task taken out by master: " + task.getUrl());
                 DownloadWorker downloadWorker = new DownloadWorker(task, progressEventDispatcher, false);
                 Thread newWorkerThread = new Thread(downloadWorker);
@@ -41,6 +47,11 @@ public class DownloadMasterWorker implements Runnable{
                 Thread.currentThread().interrupt();
             }
         }
+        System.out.println("Master shutting down...");
+        for(int taskId: workersMap.keySet()){
+            workersMap.get(taskId).cancel();
+        }
+        progressEventDispatcher.emitProgress(new ProgressEvent(exitTask, -1, false));
     }
     public void pauseWorkerWithTaskId(int taskId){
         if(workersMap.containsKey(taskId)) {
