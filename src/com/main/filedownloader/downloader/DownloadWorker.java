@@ -159,7 +159,7 @@ public class DownloadWorker implements Runnable{
                 e.printStackTrace();
             }
             if(isCancel){
-                progressEventDispatcher.emitProgress(new ProgressEvent(task, -1, false, "Worker: Download canceled for task:"+task.getId()));
+                progressEventDispatcher.emitProgress(new ProgressEvent(task, -1, false, "Worker: Download canceled for task:"+task.getTaskId()));
             }else {
                 long elapsed = System.currentTimeMillis()-startTime;
                 System.out.printf("Download complete :) \nTime taken: %.2f s\n",(float)elapsed/1000f);
@@ -168,47 +168,9 @@ public class DownloadWorker implements Runnable{
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-//        System.out.println("Task started by worker: "+task.getUrl()+":"+Thread.currentThread().getName());
-//        try {
-//            String fileURL = task.getUrl();
-//            float fileSize = FileByeSizeRetriever.getFileSize(fileURL);
-//            task.setSizeInKbs(fileSize);
-//            URL url = new URL(fileURL);
-//            InputStream inputStream = url.openStream();
-//            String fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1);
-//            FileOutputStream outputStream = new FileOutputStream(task.getOutputLocation() + File.separator + fileName);
-//
-//            byte[] buffer = new byte[1024];
-//            int bytesRead;
-//            float totalBytesRead = 0f;
-//            float progress = 0f;
-//            while ((bytesRead = inputStream.read(buffer)) != -1 && !isCancel) {
-//                int pausedEmitCnt = 0;
-//                while (isPaused) {
-//                    if(pausedEmitCnt==0) {
-//                        pausedEmitCnt = 1;
-//                        progressEventDispatcher.emitProgress(new ProgressEvent(task, progress, false, "download paused"));
-//                    }
-//                    Thread.onSpinWait();
-//                }
-//                outputStream.write(buffer, 0, bytesRead);
-//                totalBytesRead+=bytesRead;
-//                progress = totalBytesRead / fileSize * 100; // Calculate progress
-//                progressEventDispatcher.emitProgress(new ProgressEvent(task, progress, false, "downloading"));
-//            }
-//            outputStream.close();
-//            inputStream.close();
-//            if(isCancel){
-//                progressEventDispatcher.emitProgress(new ProgressEvent(task, progress, true, "download canceled"));
-//            }else{
-//                progressEventDispatcher.emitProgress(new ProgressEvent(task, 100, true, "download completed"));
-//            }
-//        }catch (Exception e){
-//            Thread.currentThread().interrupt();
-//        }
     }
     private void joinParts(String outputFile, List<WorkerAssistant> assistants) throws IOException {
-        System.out.println("Joining parts: "+task.getId());
+        System.out.println("Joining parts: "+task.getTaskId());
 
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             BufferedOutputStream bos = new BufferedOutputStream(fos, OUTPUT_BUFFER_SIZE);
@@ -232,7 +194,7 @@ public class DownloadWorker implements Runnable{
 //                assistant.copyPartToFile(fos);
 //            }
 //        }
-        System.out.println("Joining parts finished: "+task.getId());
+        System.out.println("Joining parts finished: "+task.getTaskId());
     }
     public void pause(){
         for(WorkerAssistant assistant: assistants){

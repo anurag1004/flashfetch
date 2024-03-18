@@ -16,7 +16,7 @@ public class ProgressFetcher implements Runnable{
                 if(progressEvent.getTask().getId()==-1){
                     break;
                 }
-                System.out.println(progressEvent.getTask().getId()+"|"+progressEvent.getProgress()+"|"+progressEvent.isFinished()+"|"+progressEvent.getMessage());
+                //System.out.println(progressEvent.getTask().getId()+"|"+progressEvent.getProgress()+"|"+progressEvent.isFinished()+"|"+progressEvent.getMessage());
             }catch (Exception e){
                 Thread.currentThread().interrupt();
             }

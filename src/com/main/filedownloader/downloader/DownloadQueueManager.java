@@ -40,7 +40,7 @@ public class DownloadQueueManager {
     }
     public void cancelAllTasks(){
         for(Task task: taskList){
-            this.cancelTask(task.getId());
+            this.cancelTask(task.getTaskId());
         }
         Task exitTask = new Task("","","");
         exitTask.setTaskId(-1);

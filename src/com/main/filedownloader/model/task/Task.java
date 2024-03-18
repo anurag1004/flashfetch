@@ -26,9 +26,6 @@ public class Task {
         return fileName;
     }
 
-    public int getId() {
-        return taskId;
-    }
 
     public String getOutputLocation() {
         return outputLocation;

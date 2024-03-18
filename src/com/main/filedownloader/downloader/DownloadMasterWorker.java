@@ -33,7 +33,7 @@ public class DownloadMasterWorker implements Runnable{
         while(true){
             try {
                 Task task = taskQueue.take();
-                if(task.getId()==-1){
+                if(task.getTaskId()==-1){
                     // terminate
                     exitTask = task;
                     break;
@@ -41,7 +41,7 @@ public class DownloadMasterWorker implements Runnable{
                 System.out.println("Task taken out by master: " + task.getUrl());
                 DownloadWorker downloadWorker = new DownloadWorker(task, progressEventDispatcher, false);
                 Thread newWorkerThread = new Thread(downloadWorker);
-                workersMap.put(task.getId(), downloadWorker);
+                workersMap.put(task.getTaskId(), downloadWorker);
                 newWorkerThread.start();
             }catch (Exception e){
                 Thread.currentThread().interrupt();
