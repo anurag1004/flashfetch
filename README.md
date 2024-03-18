@@ -35,9 +35,9 @@ Task task = downloader.addToDownloadQueue(url, outputLocation, filename);
 
 You can control the state of a download task using the following methods:
 
-pauseDownload(int taskId): Pauses the download task with the specified task ID.
-resumeDownload(int taskId): Resumes the paused download task with the specified task ID.
-cancelDownload(int taskId): Cancels the download task with the specified task ID.
+**pauseDownload(int taskId)**: Pauses the download task with the specified task ID.</br>
+**resumeDownload(int taskId)**: Resumes the paused download task with the specified task ID.</br>
+**cancelDownload(int taskId)**: Cancels the download task with the specified task ID.</br>
 ```java
 int taskId = task.getId();
 downloader.pauseDownload(taskId);
