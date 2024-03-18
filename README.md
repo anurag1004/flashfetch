@@ -30,7 +30,9 @@ String outputLocation = "/path/to/downloads";
 String filename = "file.zip";
 Task task = downloader.addToDownloadQueue(url, outputLocation, filename);
 ```
-Controlling Download Tasks
+
+### Controlling Download Tasks
+
 You can control the state of a download task using the following methods:
 
 pauseDownload(int taskId): Pauses the download task with the specified task ID.
@@ -42,7 +44,7 @@ downloader.pauseDownload(taskId);
 downloader.resumeDownload(taskId);
 downloader.cancelDownload(taskId);
 ```
-Exiting the Application
+### Exiting the Application
 To gracefully exit the application and cancel all tasks in the download queue, call the exit method on the DownloadManager instance:
 ```java
 downloader.exit();
