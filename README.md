@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://res.cloudinary.com/depkjmecv/image/upload/v1710795558/flash-fetch-logo_nln2qh.jpg" alt="FlashFetch Logo" width="200">
+</p>
+
 # FlashFetch
 
 FlashFetch is a Java package designed for efficient and concurrent file downloading. It provides a simple and intuitive API for managing download tasks, allowing you to add, pause, resume, and cancel downloads with ease.
