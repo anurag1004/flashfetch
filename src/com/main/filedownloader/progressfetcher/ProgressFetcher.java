@@ -13,7 +13,7 @@ public class ProgressFetcher implements Runnable{
         while(true){
             try {
                 ProgressEvent progressEvent = progressEvents.take();
-                if(progressEvent.getTask().getId()==-1){
+                if(progressEvent.getTask().getTaskId()==-1){
                     break;
                 }
                 //System.out.println(progressEvent.getTask().getId()+"|"+progressEvent.getProgress()+"|"+progressEvent.isFinished()+"|"+progressEvent.getMessage());
