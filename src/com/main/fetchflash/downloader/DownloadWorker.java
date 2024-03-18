@@ -1,14 +1,13 @@
-package com.main.filedownloader.downloader;
+package com.main.fetchflash.downloader;
 
-import com.main.filedownloader.constants.Constants;
-import com.main.filedownloader.model.event.ProgressEvent;
-import com.main.filedownloader.progressdispatcher.ProgressEventDispatcher;
-import com.main.filedownloader.model.task.Task;
-import com.main.filedownloader.util.FileByeSizeRetriever;
+import com.main.fetchflash.constants.Constants;
+import com.main.fetchflash.model.event.ProgressEvent;
+import com.main.fetchflash.progressdispatcher.ProgressEventDispatcher;
+import com.main.fetchflash.model.task.Task;
+import com.main.fetchflash.util.FileByeSizeRetriever;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;

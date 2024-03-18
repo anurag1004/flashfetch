@@ -1,9 +1,8 @@
-package com.main.filedownloader.progressdispatcher;
+package com.main.fetchflash.progressdispatcher;
 
-import com.main.filedownloader.model.event.ProgressEvent;
+import com.main.fetchflash.model.event.ProgressEvent;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class ProgressEventDispatcher {
     BlockingQueue<ProgressEvent> progressEvents;

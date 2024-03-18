@@ -1,4 +1,4 @@
-package com.main.filedownloader.model.task;
+package com.main.fetchflash.model.task;
 
 public class Task {
     private static int id = 0;

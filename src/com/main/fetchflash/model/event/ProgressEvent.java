@@ -1,6 +1,6 @@
-package com.main.filedownloader.model.event;
+package com.main.fetchflash.model.event;
 
-import com.main.filedownloader.model.task.Task;
+import com.main.fetchflash.model.task.Task;
 
 public class ProgressEvent {
     private final Task task;

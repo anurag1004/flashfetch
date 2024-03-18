@@ -1,7 +1,6 @@
-package com.main.filedownloader.downloader;
+package com.main.fetchflash.downloader;
 
-import com.main.filedownloader.model.task.Task;
-import com.main.filedownloader.progressfetcher.ProgressFetcher;
+import com.main.fetchflash.model.task.Task;
 
 public class DownloadManager {
     private final DownloadQueueManager downloadQueueManager;

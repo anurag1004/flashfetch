@@ -1,9 +1,6 @@
-package com.main.filedownloader.downloader;
+package com.main.fetchflash.downloader;
 
-import com.main.filedownloader.progressdispatcher.ProgressEventDispatcher;
-import com.main.filedownloader.model.event.ProgressEvent;
-import com.main.filedownloader.model.task.Task;
-import com.main.filedownloader.progressfetcher.ProgressFetcher;
+import com.main.fetchflash.model.task.Task;
 
 import java.util.ArrayList;
 import java.util.List;
