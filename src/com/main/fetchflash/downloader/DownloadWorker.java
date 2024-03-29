@@ -1,6 +1,7 @@
 package com.main.fetchflash.downloader;
 
 import com.main.fetchflash.constants.Constants;
+import com.main.fetchflash.constants.EventType;
 import com.main.fetchflash.model.event.ProgressEvent;
 import com.main.fetchflash.progressdispatcher.ProgressEventDispatcher;
 import com.main.fetchflash.model.task.Task;
@@ -41,26 +42,11 @@ class WorkerAssistant implements Runnable{
     @Override
     public void run() {
         try {
-            progressEventDispatcher.emitProgress(new ProgressEvent(task, 0, false, "Assistant started: "+partIndex));
+            progressEventDispatcher.emitProgress(new ProgressEvent(task, 0, EventType.DOWNLOADING, "Assistant started: "+partIndex));
             URL url = new URL(task.getUrl());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestProperty("Range", "bytes=" + start + "-" + (end - 1));
             double progress = 0;
-            /*
-            *
-                try (BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());
-                     FileOutputStream fos = new FileOutputStream(partFile)) {
-                    byte[] buffer = new byte[BUFFER_SIZE];
-                    int bytesRead;
-                    int totalBytesRead = 0;
-                    while ((bytesRead = bis.read(buffer)) != -1) {
-                        fos.write(buffer, 0, bytesRead);
-                        totalBytesRead += bytesRead;
-                        double progress = ((double) totalBytesRead / (end - start)) * 100;
-                        System.out.printf("Worker %d: Downloaded %.2f%%\n", partIndex, progress);
-                    }
-                }
-            * */
             try (BufferedInputStream bis = new BufferedInputStream(conn.getInputStream(), INPUT_BUFFER_SIZE)) {
                 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(partFile), OUTPUT_BUFFER_SIZE);
                 buffer = new byte[INPUT_BUFFER_SIZE];
@@ -70,26 +56,32 @@ class WorkerAssistant implements Runnable{
                     bos.write(buffer, 0, bytesRead);
                     totalBytesRead += bytesRead;
                     progress = ((double) totalBytesRead / (end - start)) * 100;
-                    progressEventDispatcher.emitProgress(new ProgressEvent(task, (float) progress, false, "Assistant: "+partIndex));
+                    progressEventDispatcher.emitProgress(new ProgressEvent(task, partIndex, (float) progress, EventType.DOWNLOADING, "Assistant: "+partIndex));
+//                    progressEventDispatcher.emitProgress(new ProgressEvent(task, (float) progress, false, "Assistant: "+partIndex));
                     int pausedEmitCnt = 0;
                     while (isPaused) {
                         if(pausedEmitCnt==0) {
                             pausedEmitCnt = 1;
-                            progressEventDispatcher.emitProgress(new ProgressEvent(task, (float) progress, false, "download paused"));
+                            progressEventDispatcher.emitProgress(new ProgressEvent(task, partIndex, (float) progress, EventType.PAUSED, "download paused"));
+//                            progressEventDispatcher.emitProgress(new ProgressEvent(task, (float) progress, false, "download paused"));
                         }
                         Thread.onSpinWait();
                     }
                 }
                 bos.flush(); bis.close(); bos.close();
                 if(isCancel){
-                    progressEventDispatcher.emitProgress(new ProgressEvent(task, (float) progress, true, "download canceled"));
+                    progressEventDispatcher.emitProgress(new ProgressEvent(task, partIndex, (float) progress, EventType.CANCELED, "download canceled"));
+//                    progressEventDispatcher.emitProgress(new ProgressEvent(task, (float) progress, true, "download canceled"));
                     buffer = new byte[]{}; // empty the buffer
                 }else{
-                    progressEventDispatcher.emitProgress(new ProgressEvent(task, 100, true, "download completed"));
+                    progressEventDispatcher.emitProgress(new ProgressEvent(task, partIndex,100, EventType.COMPLETED, "download completed"));
+//                    progressEventDispatcher.emitProgress(new ProgressEvent(task, 100, true, "download completed"));
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            ProgressEvent exceptionEvent = new ProgressEvent(new Task("","",""), -1, EventType.ERROR, "Runtime exception: Assistant :(");
+            exceptionEvent.setException(e);
+            progressEventDispatcher.emitProgress(exceptionEvent);
             buffer = new byte[]{};
         }
     }
@@ -146,7 +138,7 @@ public class DownloadWorker implements Runnable{
             for (int i = 0; i < MAX_PARTS; i++) {
                 int start = i * partSize;
                 int end = (i == MAX_PARTS - 1) ? (int)fileSize : (i + 1) * partSize;
-                progressEventDispatcher.emitProgress(new ProgressEvent(task, 0, false, "Creating worker assistant: "+i));
+                progressEventDispatcher.emitProgress(new ProgressEvent(task, 0, EventType.DOWNLOADING, "Creating worker assistant: "+i));
                 WorkerAssistant workerAssistant = new WorkerAssistant(start, end, i, task, progressEventDispatcher);
                 assistants.add(workerAssistant);
                 executor.execute(workerAssistant);
@@ -155,22 +147,25 @@ public class DownloadWorker implements Runnable{
             try {
                 executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                ProgressEvent exceptionEvent = new ProgressEvent(new Task("","",""), -1, EventType.ERROR, "Failed to terminate executor");
+                exceptionEvent.setException(e);
+                progressEventDispatcher.emitProgress(exceptionEvent);
             }
             if(isCancel){
-                progressEventDispatcher.emitProgress(new ProgressEvent(task, -1, false, "Worker: Download canceled for task:"+task.getTaskId()));
+                progressEventDispatcher.emitProgress(new ProgressEvent(task, -1, EventType.CANCELED, "Worker: Download canceled for task:"+task.getTaskId()));
             }else {
                 long elapsed = System.currentTimeMillis()-startTime;
-                System.out.printf("Download complete :) \nTime taken: %.2f s\n",(float)elapsed/1000f);
                 joinParts(task.getOutputLocation() + File.separator + fileName, assistants);
+                progressEventDispatcher.emitProgress(new ProgressEvent(task, 100f, EventType.COMPLETED, String.format("Download complete :) \nTime taken: %.2f s\n",(float)elapsed/1000f)));
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            ProgressEvent exceptionEvent = new ProgressEvent(new Task("","",""), -1, EventType.ERROR, "Unexpected runtime exception: Worker :(");
+            exceptionEvent.setException(e);
+            progressEventDispatcher.emitProgress(exceptionEvent);
         }
     }
     private void joinParts(String outputFile, List<WorkerAssistant> assistants) throws IOException {
-        System.out.println("Joining parts: "+task.getTaskId());
-
+        progressEventDispatcher.emitProgress(new ProgressEvent(task, 100f, EventType.COMPLETED, String.format("Joining parts: "+task.getTaskId())));
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             BufferedOutputStream bos = new BufferedOutputStream(fos, OUTPUT_BUFFER_SIZE);
             for (WorkerAssistant assistant : assistants) {
@@ -188,12 +183,7 @@ public class DownloadWorker implements Runnable{
             bos.flush();
             bos.close();
         }
-//        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-//            for (WorkerAssistant assistant : assistants) {
-//                assistant.copyPartToFile(fos);
-//            }
-//        }
-        System.out.println("Joining parts finished: "+task.getTaskId());
+        progressEventDispatcher.emitProgress(new ProgressEvent(task, 100f, EventType.COMPLETED, String.format("Joining parts finished: "+task.getTaskId())));
     }
     public void pause(){
         for(WorkerAssistant assistant: assistants){

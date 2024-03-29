@@ -4,7 +4,7 @@
 
 # FlashFetch
 
-FlashFetch is a Java package designed for efficient and concurrent file downloading. It provides a simple and intuitive API for managing download tasks, allowing you to add, pause, resume, and cancel downloads with ease.
+FlashFetch is a Java package designed for efficient and concurrent file downloading. It provides a simple and intuitive API for managing download tasks, allowing you to add, pause, resume, and cancel downloads with ease. FlashFetch requires **JDK 18** or later.
 
 ## Features
 
@@ -55,31 +55,73 @@ downloader.exit();
 ```
 ### Handling Download Events
 
-> **Note:** The event handling feature is not yet implemented in the current version of FlashFetch. It will be introduced in a future release.
+FlashFetch provides a way to handle events related to download tasks, such as progress updates, completion, errors, and exit. You can implement the `FFListener` interface and register your listener with the `DownloadManager`.
 
-FlashFetch will provide a way to handle events related to download tasks, such as progress updates, completion, and errors. You will be able to implement the `DownloadListener` interface and register your listener with the `DownloadManager`.
+#### Example
 
 ```java
-import com.example.flashfetch.DownloadListener;
-import com.example.flashfetch.DownloadEvent;
+import com.example.flashfetch.FFListener;
+import com.example.flashfetch.ProgressEvent;
 
-class MyDownloadListener implements DownloadListener {
-   @Override
-   public void onProgressUpdate(DownloadEvent event) {
-       // Handle progress update
-   }
-
-   @Override
-   public void onCompleted(DownloadEvent event) {
-       // Handle download completion
-   }
-
-   @Override
-   public void onError(DownloadEvent event) {
-       // Handle download error
-   }
+class MyDownloadListener implements FFListener {
+    @Override
+    public void onProgressUpdate(ProgressEvent event) {
+    // Handle progress update
+        System.out.println("Download progress: " + event.getProgress() + "%");
+    }
+    
+    @Override
+    public void onCompleted(ProgressEvent event) {
+    // Handle download completion
+        System.out.println("Download completed: " + event.getFile().getName());
+    }
+    
+    @Override
+    public void onError(ProgressEvent event) {
+    // Handle download error
+        System.err.println("Download error: " + event.getError().getMessage());
+    }
+    
+    @Override
+    public void onExit(ProgressEvent event) {
+    // Handle download exit
+        System.out.println("Download process exited.");
+    }
 }
 
-// Register the listener with the DownloadManager (not yet implemented)
+// Register the listener with the DownloadManager
 MyDownloadListener listener = new MyDownloadListener();
-// downloader.addListener(listener);
+DownloadManager downloader = new DownloadManager();
+downloader.addListener(listener);
+```
+
+The `FFListener` interface defines the following methods:
+
+- `onProgressUpdate(ProgressEvent event)`: This method is called when the download progress is updated, allowing you to handle progress updates for a specific download task. In the example, it prints the current download progress.
+- `onCompleted(ProgressEvent event)`: This method is called when a download task is completed successfully, enabling you to perform any necessary actions after the download finishes. In the example, it prints the name of the downloaded file.
+- `onError(ProgressEvent event)`: This method is called when an error occurs during the download process, providing you with the opportunity to handle errors gracefully. In the example, it prints the error message.
+- `onExit(ProgressEvent event)`: This method is called when the download process exits, allowing you to perform any necessary cleanup or finalization tasks. In the example, it prints a message indicating the download process has exited.
+
+#### ProgressEvent
+
+The `ProgressEvent` class encapsulates the information related to a specific event that occurs during the download process. It contains the following fields:
+
+```java
+public class ProgressEvent {
+   private EventType eventType;
+   private final Task task;
+   private final float progress;
+   private int partIdx = -1; // not set or unavailable
+   private String message;
+   private Exception exception;
+   // ... other methods
+}
+```
+- `eventType`: An enum representing the type of event (e.g., progress update, completion, error).
+- `task`: The Task object associated with the event.
+- `progress`: The current download progress represented as a float value between 0 and 1.
+- `partIdx`: The index of the download part for which the event occurred (if applicable).
+- `message`: A message associated with the event (e.g., error message).
+- `exception`: An exception object representing any error that occurred during the download process (if applicable).
+
+To use the event handling feature, you need to create a class that implements the `FFListener` interface and overrides the respective methods. Then, you can register an instance of your listener class with the `DownloadManager` using the `addListener` method, as shown in the example.
