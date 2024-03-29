@@ -14,6 +14,7 @@ public class ProgressEventDispatcher {
             try {
                 this.progressEvents.put(progressEvent);
             }catch (Exception e){
+                e.printStackTrace();
                 Thread.currentThread().interrupt();
             }
         }).start();
