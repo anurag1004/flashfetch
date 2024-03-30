@@ -13,6 +13,10 @@ FlashFetch is a Java package designed for efficient and concurrent file download
 - **Non-blocking Operations**: The download tasks run asynchronously, allowing you to continue working with your application while files are being downloaded in the background.
 - **Download Queue Management**: Easily add, pause, resume, and cancel download tasks in the queue.
 - **Intuitive API**: The package provides a straightforward and user-friendly API for managing downloads.
+  
+## Architecture
+
+<img src="docs/flashfetch-arch.svg" alt="Architecture diagram">
 
 ## Usage
 
