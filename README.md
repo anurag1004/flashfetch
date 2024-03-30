@@ -100,7 +100,7 @@ The `FFListener` interface defines the following methods:
 - `onProgressUpdate(ProgressEvent event)`: This method is called when the download progress is updated, allowing you to handle progress updates for a specific download task. In the example, it prints the current download progress.
 - `onCompleted(ProgressEvent event)`: This method is called when a download task is completed successfully, enabling you to perform any necessary actions after the download finishes. In the example, it prints the name of the downloaded file.
 - `onError(ProgressEvent event)`: This method is called when an error occurs during the download process, providing you with the opportunity to handle errors gracefully. In the example, it prints the error message.
-- `onExit(ProgressEvent event)`: This method is called when the download process exits, allowing you to perform any necessary cleanup or finalization tasks. In the example, it prints a message indicating the download process has exited.
+- `onExit(ProgressEvent event)`: This method is called when the you shutdown download manager or is exited unexpectedly. In the example, it prints a message indicating the download process has exited.
 
 #### ProgressEvent
 
@@ -119,7 +119,7 @@ public class ProgressEvent {
 ```
 - `eventType`: An enum representing the type of event (e.g., progress update, completion, error).
 - `task`: The Task object associated with the event.
-- `progress`: The current download progress represented as a float value between 0 and 1.
+- `progress`: The current download progress represented as a float value between 0 and 100.00.
 - `partIdx`: The index of the download part for which the event occurred (if applicable).
 - `message`: A message associated with the event (e.g., error message).
 - `exception`: An exception object representing any error that occurred during the download process (if applicable).
