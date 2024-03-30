@@ -91,8 +91,7 @@ class MyDownloadListener implements FFListener {
 
 // Register the listener with the DownloadManager
 MyDownloadListener listener = new MyDownloadListener();
-DownloadManager downloader = new DownloadManager();
-downloader.addListener(listener);
+DownloadManager downloader = new DownloadManager(listener);
 ```
 
 The `FFListener` interface defines the following methods:
