@@ -73,13 +73,13 @@ class MyDownloadListener implements FFListener {
     @Override
     public void onCompleted(ProgressEvent event) {
     // Handle download completion
-        System.out.println("Download completed: " + event.getFile().getName());
+        System.out.println("Download completed: " + event.getTask().getTaskId());
     }
     
     @Override
     public void onError(ProgressEvent event) {
     // Handle download error
-        System.err.println("Download error: " + event.getError().getMessage());
+        System.err.println("Download error: " + event.getException().getMessage());
     }
     
     @Override
