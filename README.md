@@ -59,7 +59,7 @@ downloader.exit();
 ```
 ### Handling Download Events
 
-FlashFetch provides a way to handle events related to download tasks, such as progress updates, completion, errors, and exit. You can implement the `FFListener` interface and register your listener with the `DownloadManager`.
+FlashFetch provides a way to handle events related to download tasks, such as progress updates, completion, errors, and exit. To use the event handling feature, you need to create a class that implements the `FFListener` interface and overrides the respective methods. Then, you can pass your listener to the constructor call.
 
 #### Example
 
@@ -126,5 +126,3 @@ public class ProgressEvent {
 - `partIdx`: The index of the download part for which the event occurred (if applicable).
 - `message`: A message associated with the event (e.g., error message).
 - `exception`: An exception object representing any error that occurred during the download process (if applicable).
-
-To use the event handling feature, you need to create a class that implements the `FFListener` interface and overrides the respective methods. Then, you can register an instance of your listener class with the `DownloadManager` using the `addListener` method, as shown in the example.
